@@ -2,27 +2,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Neuron {
-    public final int id;
-    public final Integer nextId;
-    private final List<Double> list = new ArrayList<>();
+    private static double DEFAULT_MAGIC_VALUE = 0;
+
+    public final List<Integer> nextIds;
+    private final List<Double> inValues = new ArrayList<>();
     private final double magicValue;
 
-    public Neuron(int id, Integer nextId, double magicValue) {
-        this.id = id;
-        this.nextId = nextId;
+    public Neuron(List<Integer> nextIds, double magicValue) {
+        this.nextIds = nextIds;
         this.magicValue = magicValue;
     }
 
-    public void addInput(double value){
-        list.add(value);
+    public Neuron() {
+        this.nextIds = new ArrayList<>();
+        this.magicValue = DEFAULT_MAGIC_VALUE;
     }
-    public double operation(){
+
+    public void addInput(double value) {
+        inValues.add(value);
+    }
+
+    public double operation() {
         return magicValue * (sumElements() % 1);
     }
 
-    private Double sumElements(){
+    private Double sumElements() {
         Double r = 0d;
-        for (Double v: list) {
+        for (Double v : inValues) {
             r += v;
         }
         return r;
@@ -31,9 +37,8 @@ public class Neuron {
     @Override
     public String toString() {
         return "Neuron{" +
-                "id=" + id +
-                ", nextId=" + nextId +
-                ", list=" + list +
+                "nextIds=" + nextIds +
+                ", inValues=" + inValues +
                 ", magicValue=" + magicValue +
                 '}';
     }
