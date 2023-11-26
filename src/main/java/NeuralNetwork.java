@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 public class NeuralNetwork {
-    private final String SPLITTER = "->";
-    private final String COMMENT_SYMBOL = "#";
-    private final int ORIGIN_INDEX = 0;
-    private final int DESTINATION_INDEX = 1;
+    private static final String CONECTION_SYMBOL = "->";
+    private static final String ATRIBUTION_SYMBOL = "=";
+    private static final String COMMENT_SYMBOL = "#";
+    private static final int ORIGIN_INDEX = 0;
+    private static final int DESTINATION_INDEX = 1;
+    private static final int MAGIC_VALUE_INDEX = 1;
 
     // TODO: add layers
     public final Map<Integer, Neuron> neuronMap = new HashMap<Integer, Neuron>();
@@ -43,25 +45,39 @@ public class NeuralNetwork {
      * 
      * @throws IOException
      */
-    public NeuralNetwork fromFile(Path filePath) throws IOException {
+    public static NeuralNetwork fromFile(Path filePath) throws IOException {
         NeuralNetwork network = new NeuralNetwork();
 
         Files.readAllLines(filePath).forEach((line) -> {
-            if (line.startsWith(COMMENT_SYMBOL))
+            if (line.startsWith(COMMENT_SYMBOL) || line.isBlank())
                 return;
 
-            String[] values = line.split(SPLITTER);
-            Integer origin = Integer.valueOf(values[ORIGIN_INDEX]);
-            Integer destination = Integer.valueOf(values[DESTINATION_INDEX]);
+            if (line.contains(CONECTION_SYMBOL)) {
+                String[] values = line.split(CONECTION_SYMBOL);
+                Integer origin = Integer.valueOf(values[ORIGIN_INDEX]);
+                Integer destination = Integer.valueOf(values[DESTINATION_INDEX]);
 
-            if (!network.neuronMap.containsKey(origin)) {
-                neuronMap.put(origin, new Neuron());
-            }
-            if (!network.neuronMap.containsKey(destination)) {
-                neuronMap.put(destination, new Neuron());
-            }
+                if (!network.neuronMap.containsKey(origin))
+                    throw new RuntimeException("origin neuron not defined in line: {" + line + "}");
+                if (!network.neuronMap.containsKey(destination))
+                    throw new RuntimeException("destination neuron not defined in line: {" + line + "}");
 
-            network.neuronMap.get(origin).nextIds.add(destination);
+                network.neuronMap.get(origin).nextIds.add(destination);
+            } else if (line.contains(ATRIBUTION_SYMBOL)) {
+                String[] values = line.split(ATRIBUTION_SYMBOL);
+
+                Integer neuronId = Integer.valueOf(values[ORIGIN_INDEX]);
+                Double magic_value = Double.valueOf(values[MAGIC_VALUE_INDEX]);
+
+                if (network.neuronMap.containsKey(neuronId)) {
+                    throw new RuntimeException("neuron already defined in line {" + line + "}");
+                }
+
+                network.neuronMap.put(neuronId, new Neuron(magic_value));
+
+            } else {
+                throw new RuntimeException("bad formated line: " + line);
+            }
 
         });
 

@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Neuron {
-    private static double DEFAULT_MAGIC_VALUE = 0;
 
     public final List<Integer> nextIds;
     private final List<Double> inValues = new ArrayList<>();
@@ -13,9 +12,9 @@ public class Neuron {
         this.magicValue = magicValue;
     }
 
-    public Neuron() {
+    public Neuron(double magicValue) {
         this.nextIds = new ArrayList<>();
-        this.magicValue = DEFAULT_MAGIC_VALUE;
+        this.magicValue = magicValue;
     }
 
     public void addInput(double value) {
